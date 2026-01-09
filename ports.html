@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Port Entry</title>
+
+    <!-- Zoho Creator JS SDK -->
+    <script src="https://creator.zoho.com/api/js/zc-sdk.js"></script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f2f7;
+            margin: 0;
+            padding: 30px;
+        }
+        .card {
+            max-width: 450px;
+            margin: auto;
+            padding: 25px;
+            border-radius: 12px;
+            background: #f7f9fc;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .card h2 {
+            text-align: center;
+            color: #2a4d69;
+            margin-bottom: 20px;
+        }
+        .card label {
+            font-weight: bold;
+            color: #2a4d69;
+        }
+        .card input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 6px;
+            margin-bottom: 18px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+        }
+        .card button {
+            width: 100%;
+            padding: 14px;
+            background: #2a4d69;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .card button:disabled {
+            opacity: 0.6;
+            cursor: default;
+        }
+        .msg {
+            margin-top: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .msg.error {
+            color: #c0392b;
+        }
+        .msg.success {
+            color: #27ae60;
+        }
+    </style>
+</head>
+
+<body>
+<div class="card">
+    <h2>Enter Port Details</h2>
+
+    <label for="portName">Port Name</label>
+    <input type="text" id="portName" placeholder="Enter Port Name">
+
+    <button id="saveBtn">Save</button>
+
+    <p id="msg" class="msg"></p>
+</div>
+
+<script>
+    // Initialize Zoho Creator SDK once
+    let zcInitialized = false;
+
+    function initZohoCreator() {
+        if (zcInitialized) return Promise.resolve();
+        return ZOHO.CREATOR.init().then(function () {
+            zcInitialized = true;
+        });
+    }
+
+    document.getElementById("saveBtn").addEventListener("click", function () {
+        const btn = this;
+        const msgEl = document.getElementById("msg");
+        const portName = document.getElementById("portName").value.trim();
+
+        msgEl.textContent = "";
+        msgEl.className = "msg";
+
+        if (portName === "") {
+            msgEl.textContent = "Port Name is required";
+            msgEl.classList.add("error");
+            return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+
+        initZohoCreator()
+            .then(function () {
+                const config = {
+                    ownerName: "digispace",
+                    appName: "cms",
+                    formName: "Add_Port_Name",
+                    data: {
+                        Port_Name: portName
+                    }
+                };
+
+                return ZOHO.CREATOR.API.addRecord(config);
+            })
+            .then(function (response) {
+                msgEl.textContent = "Saved successfully!";
+                msgEl.classList.add("success");
+                document.getElementById("portName").value = "";
+            })
+            .catch(function (err) {
+                console.error("Error saving record:", err);
+                msgEl.textContent = "Error saving port. Check console.";
+                msgEl.classList.add("error");
+            })
+            .finally(function () {
+                btn.disabled = false;
+                btn.textContent = "Save";
+            });
+    });
+</script>
+</body>
+</html>
